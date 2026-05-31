@@ -9,3 +9,8 @@ dist-ssr
 .vite
 *.log
 npm-debug.log*
+
+# Artefacts de test visuel
+screenshots
+test-results
+playwright-report
