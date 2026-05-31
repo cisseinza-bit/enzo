@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useApp } from '../context/AppContext.jsx'
 import { OFFERS } from '../data/program.js'
+import Icon from './ui/Icon.jsx'
 
 function useCountdown(seconds = 6 * 3600 + 42 * 60) {
   const [left, setLeft] = useState(seconds)
@@ -21,18 +22,23 @@ export default function OfferBanner() {
   if (tier === 'premium') return null
   const offer = OFFERS[(weekNumber - 1) % OFFERS.length]
   return (
-    <div className="rounded-2xl bg-gradient-to-r from-flame to-[#ff8d5e] p-4 text-ink">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-[11px] font-bold uppercase tracking-wide opacity-80">Offre limitée · expire dans {time}</p>
-          <p className="text-lg font-extrabold leading-tight">{offer.label}</p>
-          <p className="text-xs font-semibold opacity-80">{offer.sub}</p>
+    <div className="relative overflow-hidden rounded-3xl border border-flame/30 bg-gradient-to-br from-flame/15 via-ink-700 to-ink-700 p-5">
+      <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-flame/20 blur-2xl" />
+      <div className="relative flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-flame">
+            <Icon name="timer" size={13} strokeWidth={2.5} />
+            <span className="tnum">Expire dans {time}</span>
+          </p>
+          <p className="mt-1 font-display text-xl font-extrabold leading-tight text-white">{offer.label}</p>
+          <p className="text-xs font-medium text-muted">{offer.sub}</p>
         </div>
         <button
           onClick={() => setTier('premium')}
-          className="shrink-0 rounded-xl bg-ink px-4 py-2 text-sm font-extrabold text-lime active:scale-95 transition"
+          className="flex shrink-0 items-center gap-1.5 rounded-2xl bg-flame px-4 py-2.5 text-sm font-bold text-ink-900 shadow-glow-flame active:scale-95 transition"
         >
-          🔓 Débloquer
+          <Icon name="unlock" size={15} strokeWidth={2.5} />
+          Débloquer
         </button>
       </div>
     </div>

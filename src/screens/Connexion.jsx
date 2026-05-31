@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useApp } from '../context/AppContext.jsx'
+import Icon from '../components/ui/Icon.jsx'
 
 export default function Connexion() {
   const navigate = useNavigate()
@@ -23,12 +24,16 @@ export default function Connexion() {
 
   return (
     <div className="flex min-h-full flex-col px-6 pt-[max(env(safe-area-inset-top),32px)] pb-10">
-      <button onClick={() => navigate('/splash')} className="mb-8 self-start text-2xl text-muted">‹</button>
+      <button onClick={() => navigate('/splash')} aria-label="Retour" className="mb-8 self-start text-muted">
+        <Icon name="back" size={26} />
+      </button>
 
       <div className="flex-1">
         <div className="mb-8 text-center">
-          <div className="animate-flame text-5xl">🔥</div>
-          <h1 className="mt-3 text-3xl font-black">Content de te revoir</h1>
+          <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-ink-700 text-lime shadow-glow">
+            <Icon name="flame" size={32} strokeWidth={2.2} />
+          </span>
+          <h1 className="mt-4 font-display text-3xl font-extrabold tracking-tightest">Content de te revoir</h1>
           <p className="mt-2 text-sm text-muted">Reprends là où tu t’es arrêté.</p>
         </div>
 

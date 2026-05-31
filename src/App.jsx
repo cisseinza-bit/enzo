@@ -1,8 +1,10 @@
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { AnimatePresence } from 'framer-motion'
 import { useApp } from './context/AppContext.jsx'
 import { RewardProvider } from './components/Reward.jsx'
 import BottomNav from './components/BottomNav.jsx'
 import FloatingUnlock from './components/FloatingUnlock.jsx'
+import PageTransition from './components/PageTransition.jsx'
 
 import Splash from './screens/Splash.jsx'
 import Connexion from './screens/Connexion.jsx'
@@ -23,17 +25,19 @@ export default function App() {
   if (booting) {
     return (
       <div className="app-shell flex items-center justify-center">
-        <div className="animate-flame text-5xl">🔥</div>
+        <span className="relative flex h-14 w-14 items-center justify-center">
+          <span className="absolute inset-0 rounded-full bg-lime/30 animate-pulse-ring" />
+          <span className="h-3 w-3 rounded-full bg-lime" />
+        </span>
       </div>
     )
   }
 
-  // Tant que l'onboarding n'est pas fait, on enferme l'utilisateur dans le tunnel d'entrée.
   const inEntryFlow = ['/splash', '/connexion', '/onboarding', '/generation'].includes(location.pathname)
 
   if (!onboarded && !inEntryFlow) {
     return (
-      <div className="app-shell">
+      <div className="app-shell grain">
         <Routes location={location}>
           <Route path="/connexion" element={<Connexion />} />
           <Route path="/onboarding" element={<Onboarding />} />
@@ -45,20 +49,22 @@ export default function App() {
 
   return (
     <RewardProvider>
-      <div className="app-shell flex flex-col">
-        <Routes location={location}>
-          <Route path="/splash" element={<Splash />} />
-          <Route path="/connexion" element={<Connexion />} />
-          <Route path="/onboarding" element={<Onboarding />} />
-          <Route path="/generation" element={<Generating />} />
-          <Route path="/" element={<WithNav key={location.pathname}><Home /></WithNav>} />
-          <Route path="/programme" element={<WithNav key={location.pathname}><Programme /></WithNav>} />
-          <Route path="/sport" element={<WithNav key={location.pathname}><Sport /></WithNav>} />
-          <Route path="/suivi" element={<WithNav key={location.pathname}><Suivi /></WithNav>} />
-          <Route path="/decouverte" element={<WithNav key={location.pathname}><Decouverte /></WithNav>} />
-          <Route path="/compte" element={<WithNav key={location.pathname}><Compte /></WithNav>} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+      <div className="app-shell grain flex flex-col">
+        <AnimatePresence mode="wait">
+          <Routes location={location} key={location.pathname}>
+            <Route path="/splash" element={<Splash />} />
+            <Route path="/connexion" element={<Connexion />} />
+            <Route path="/onboarding" element={<Onboarding />} />
+            <Route path="/generation" element={<Generating />} />
+            <Route path="/" element={<WithNav><Home /></WithNav>} />
+            <Route path="/programme" element={<WithNav><Programme /></WithNav>} />
+            <Route path="/sport" element={<WithNav><Sport /></WithNav>} />
+            <Route path="/suivi" element={<WithNav><Suivi /></WithNav>} />
+            <Route path="/decouverte" element={<WithNav><Decouverte /></WithNav>} />
+            <Route path="/compte" element={<WithNav><Compte /></WithNav>} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </AnimatePresence>
       </div>
     </RewardProvider>
   )
@@ -68,8 +74,7 @@ function WithNav({ children }) {
   return (
     <>
       <main className="flex-1 overflow-y-auto pb-2">
-        {/* La clé sur la route relance l'animation d'entrée à chaque changement d'écran */}
-        <div className="animate-fade-up">{children}</div>
+        <PageTransition>{children}</PageTransition>
       </main>
       <FloatingUnlock />
       <BottomNav />

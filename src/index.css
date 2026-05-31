@@ -3,42 +3,51 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    color-scheme: dark;
-  }
-  html, body, #root {
-    height: 100%;
-  }
+  :root { color-scheme: dark; }
+  html, body, #root { height: 100%; }
   body {
-    @apply bg-black text-white font-sans antialiased;
+    @apply bg-ink text-white font-sans antialiased;
     overscroll-behavior-y: none;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
-  /* Mobile-first : on force une colonne 390px centrée, fond noir partout */
-  #root {
-    @apply bg-black;
-  }
-  * {
-    -webkit-tap-highlight-color: transparent;
-  }
+  #root { @apply bg-black; }
+  * { -webkit-tap-highlight-color: transparent; }
+
+  /* Chiffres tabulaires partout : les compteurs ne sautillent pas. */
+  .tnum { font-variant-numeric: tabular-nums; }
+
+  h1, h2, h3 { @apply font-display tracking-tightest; }
 }
 
 @layer components {
   .app-shell {
     @apply mx-auto w-full max-w-app min-h-full bg-ink relative overflow-hidden;
   }
+
+  /* Carte : léger dégradé + bord interne lumineux + ombre dure. */
   .card {
-    @apply bg-surface rounded-2xl border border-surface2/60;
+    @apply rounded-3xl border border-ink-500/60 shadow-card;
+    background: linear-gradient(180deg, #16161A 0%, #101012 100%);
   }
+
   .btn-primary {
-    @apply bg-lime text-ink font-extrabold rounded-2xl py-4 text-center active:scale-[0.98] transition-transform;
+    @apply bg-lime text-ink-900 font-bold rounded-2xl py-4 text-center
+           shadow-glow active:scale-[0.97] transition-transform duration-150;
   }
   .btn-ghost {
-    @apply bg-surface2 text-white font-semibold rounded-2xl py-4 text-center active:scale-[0.98] transition-transform;
+    @apply bg-ink-700 text-white font-semibold rounded-2xl py-4 text-center
+           border border-ink-500/50 active:scale-[0.97] transition-transform duration-150;
   }
   .chip {
-    @apply text-xs font-semibold px-3 py-1 rounded-full;
+    @apply text-[11px] font-semibold px-2.5 py-1 rounded-full;
+  }
+
+  /* Grain subtil superposé pour casser l'aplat numérique. */
+  .grain::after {
+    content: '';
+    @apply pointer-events-none absolute inset-0 bg-grain opacity-[0.015] mix-blend-overlay;
   }
 }
 
-/* Scrollbar discrète */
 ::-webkit-scrollbar { width: 0; height: 0; }

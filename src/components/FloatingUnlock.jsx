@@ -1,18 +1,24 @@
+import { motion } from 'framer-motion'
 import { useApp } from '../context/AppContext.jsx'
 import { useReward } from './Reward.jsx'
+import Icon from './ui/Icon.jsx'
 
 // Bouton flottant permanent — visible uniquement pour le tier "locked" (PDF 17€).
-// "Débloquer l'accès complet" : conversion vers l'abonnement.
 export default function FloatingUnlock() {
   const { tier, setTier } = useApp()
   const fire = useReward()
   if (tier === 'premium') return null
   return (
-    <button
-      onClick={() => { setTier('premium'); fire('Accès complet débloqué 🔓') }}
-      className="absolute bottom-24 right-4 z-40 flex items-center gap-2 rounded-full bg-lime px-4 py-3 text-sm font-extrabold text-ink shadow-[0_8px_24px_rgba(200,241,53,0.35)] active:scale-95 transition animate-pop"
+    <motion.button
+      initial={{ y: 30, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 24, delay: 0.3 }}
+      whileTap={{ scale: 0.95 }}
+      onClick={() => { setTier('premium'); fire('Accès complet débloqué') }}
+      className="absolute bottom-24 left-1/2 z-40 flex -translate-x-1/2 items-center gap-2 rounded-full bg-lime px-5 py-3 text-sm font-bold text-ink-900 shadow-glow"
     >
-      🔓 Débloquer l’accès complet
-    </button>
+      <Icon name="unlock" size={17} strokeWidth={2.5} />
+      Débloquer l’accès complet
+    </motion.button>
   )
 }

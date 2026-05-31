@@ -1,5 +1,7 @@
 import { useApp } from '../context/AppContext.jsx'
 import ScreenHeader from '../components/ScreenHeader.jsx'
+import Button from '../components/ui/Button.jsx'
+import Icon from '../components/ui/Icon.jsx'
 import { PROFILES, BUDGETS, GOALS } from '../data/program.js'
 
 export default function Compte() {
@@ -41,16 +43,18 @@ export default function Compte() {
         <div className="card p-5">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-extrabold uppercase tracking-wide text-muted">Mon accès</p>
-              <p className="mt-1 text-lg font-extrabold">
+              <p className="text-xs font-bold uppercase tracking-[0.12em] text-muted">Mon accès</p>
+              <p className="mt-1 font-display text-xl font-extrabold">
                 {tier === 'premium'
                   ? <span className="text-lime">Premium · complet</span>
                   : <span className="text-flame">Limité · PDF 17€</span>}
               </p>
             </div>
-            <span className="text-3xl">{tier === 'premium' ? '🔓' : '🔒'}</span>
+            <span className={`flex h-11 w-11 items-center justify-center rounded-2xl ${tier === 'premium' ? 'bg-lime/15 text-lime' : 'bg-flame/15 text-flame'}`}>
+              <Icon name={tier === 'premium' ? 'unlock' : 'lock'} size={22} strokeWidth={2.2} />
+            </span>
           </div>
-          <p className="mt-2 text-sm text-muted">
+          <p className="mt-2.5 text-sm leading-snug text-muted">
             {tier === 'premium'
               ? 'Tu as accès à tout : programmes hebdo, concepts, recettes bonus et communauté.'
               : 'Tu vois l’app, mais les contenus avancés sont verrouillés. Passe en illimité pour tout débloquer.'}
@@ -60,30 +64,27 @@ export default function Compte() {
           <div className="mt-4 grid grid-cols-2 gap-2">
             <button
               onClick={() => setTier('premium')}
-              className={`rounded-xl py-3 text-sm font-extrabold transition ${tier === 'premium' ? 'bg-lime text-ink' : 'bg-surface2 text-white'}`}
+              className={`rounded-xl py-3 text-sm font-bold transition ${tier === 'premium' ? 'bg-lime text-ink-900' : 'bg-ink-700 text-white'}`}
             >Premium</button>
             <button
               onClick={() => setTier('locked')}
-              className={`rounded-xl py-3 text-sm font-extrabold transition ${tier === 'locked' ? 'bg-flame text-ink' : 'bg-surface2 text-white'}`}
+              className={`rounded-xl py-3 text-sm font-bold transition ${tier === 'locked' ? 'bg-flame text-ink-900' : 'bg-ink-700 text-white'}`}
             >Limité (démo)</button>
           </div>
-          <p className="mt-2 text-[10px] leading-snug text-muted">
+          <p className="mt-2.5 text-[10px] leading-snug text-faint">
             Bascule de démonstration : en mode « Limité », l’app floute les contenus avancés et affiche le bouton « Débloquer ».
           </p>
         </div>
 
         {/* Déconnexion / Réinitialiser */}
         {online && (
-          <button
-            onClick={logout}
-            className="w-full rounded-2xl border border-surface2 py-4 text-center text-sm font-semibold text-white active:scale-[0.98] transition"
-          >
-            Se déconnecter
-          </button>
+          <Button variant="ghost" size="md" onClick={logout} className="w-full gap-2">
+            <Icon name="logout" size={16} strokeWidth={2.2} /> Se déconnecter
+          </Button>
         )}
         <button
           onClick={() => { if (confirm('Réinitialiser toutes tes données locales ?')) reset() }}
-          className="w-full rounded-2xl border border-surface2 py-4 text-center text-sm font-semibold text-muted active:scale-[0.98] transition"
+          className="w-full rounded-2xl border border-ink-500/50 py-4 text-center text-sm font-semibold text-muted active:scale-[0.98] transition"
         >
           Réinitialiser mes données
         </button>
