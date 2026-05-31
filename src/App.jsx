@@ -16,6 +16,7 @@ import Sport from './screens/Sport.jsx'
 import Suivi from './screens/Suivi.jsx'
 import Decouverte from './screens/Decouverte.jsx'
 import Compte from './screens/Compte.jsx'
+import LabDuo from './screens/LabDuo.jsx'
 
 export default function App() {
   const { onboarded, booting } = useApp()
@@ -33,7 +34,12 @@ export default function App() {
     )
   }
 
-  const inEntryFlow = ['/splash', '/connexion', '/onboarding', '/generation'].includes(location.pathname)
+  const inEntryFlow = ['/splash', '/connexion', '/onboarding', '/generation', '/lab/duo'].includes(location.pathname)
+
+  // Bac à sable de design (test direction Duolingo), accessible même sans onboarding.
+  if (location.pathname === '/lab/duo') {
+    return <div className="app-shell"><LabDuo /></div>
+  }
 
   if (!onboarded && !inEntryFlow) {
     return (

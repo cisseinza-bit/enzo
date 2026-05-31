@@ -7,6 +7,8 @@ import ProgressRing from '../components/ProgressRing.jsx'
 import OfferBanner from '../components/OfferBanner.jsx'
 import Counter from '../components/ui/Counter.jsx'
 import Icon from '../components/ui/Icon.jsx'
+import Photo from '../components/ui/Photo.jsx'
+import { IMAGES, photoForMeal } from '../data/images.js'
 
 const DAILY_TASKS = [
   { key: 'rope', label: 'Corde à sauter', icon: 'sport' },
@@ -112,15 +114,38 @@ export default function Home() {
         })}
       </motion.div>
 
+      {/* Plat à l'honneur — hero photo */}
+      {(() => {
+        const dinner = todayPlan.meals.find((m) => m.slot === 'Dîner') || todayPlan.meals[todayPlan.meals.length - 1]
+        return (
+          <div className="mt-6 px-5">
+            <motion.div
+              initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+              transition={{ type: 'spring', stiffness: 200, damping: 24 }}
+              className="card overflow-hidden"
+            >
+              <Photo src={photoForMeal(dinner.name).local} alt={dinner.name} overlay className="h-44 w-full">
+                <div className="flex h-full flex-col justify-end p-5">
+                  <span className="chip w-fit border border-lime/20 bg-ink-900/60 text-lime backdrop-blur">Ton dîner ce soir</span>
+                  <p className="mt-2 font-display text-2xl font-extrabold leading-tight text-white">{dinner.name}</p>
+                  <p className="tnum text-sm font-semibold text-lime">{dinner.kcal} kcal</p>
+                </div>
+              </Photo>
+            </motion.div>
+          </div>
+        )
+      })()}
+
       {/* Repas du jour */}
-      <div className="mt-6 px-5">
+      <div className="mt-5 px-5">
         <h3 className="mb-2.5 text-xs font-bold uppercase tracking-[0.12em] text-muted">Tes repas du jour</h3>
         <div className="card divide-y divide-ink-500/40 overflow-hidden">
           {todayPlan.meals.map((m) => (
-            <div key={m.slot} className="flex items-center justify-between p-4">
-              <div>
+            <div key={m.slot} className="flex items-center gap-3.5 p-3">
+              <Photo src={photoForMeal(m.name).local} alt={m.name} className="h-14 w-14 shrink-0 rounded-xl" />
+              <div className="min-w-0 flex-1">
                 <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">{m.slot}</p>
-                <p className="font-semibold">{m.name}</p>
+                <p className="truncate font-semibold">{m.name}</p>
               </div>
               <span className="tnum chip border border-lime/20 bg-lime/10 text-lime">{m.kcal} kcal</span>
             </div>
