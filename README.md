@@ -70,10 +70,24 @@ src/
 scripts/gen-icons.mjs    # génère les icônes PWA (sans dépendance)
 ```
 
+## Backend
+
+L'API vit dans [`server/`](./server) — **Express + PostgreSQL + JWT**.
+Voir [`server/README.md`](./server/README.md). Elle tourne **sans aucune clé**
+(génération de programme déterministe), et bascule automatiquement sur l'**API
+Anthropic** et **Stripe** dès que les clés sont fournies.
+
+```bash
+cd server && npm install && cp .env.example .env && npm run migrate && npm run dev
+```
+
+Le front se connecte via `src/api/client.js` (base configurable avec
+`VITE_API_URL`, cf. `.env.example`).
+
 ## Prochaines étapes
 
-- Backend Node/Express + PostgreSQL (users, profils, programmes, suivi, abonnements)
-- Génération réelle du programme via Anthropic API
-- Stripe (abonnements 39€/mois · 97€/trim · 297€/an) + déverrouillage du tier
+- Câbler les écrans front sur l'API (remplacer le state mock par les appels réels)
+- Génération réelle du programme via Anthropic API (clé à fournir)
+- Stripe live (abonnements 39€/mois · 97€/trim · 297€/an) + webhook
 - Notifications push (Checker 9h45/15h45, programme du vendredi 18h)
-- Profils Maghrébin & Subsaharien
+- Écran bilan mensuel (saisie mensurations + photos)
