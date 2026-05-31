@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+  html, body, #root {
+    height: 100%;
+  }
+  body {
+    @apply bg-black text-white font-sans antialiased;
+    overscroll-behavior-y: none;
+  }
+  /* Mobile-first : on force une colonne 390px centrée, fond noir partout */
+  #root {
+    @apply bg-black;
+  }
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@layer components {
+  .app-shell {
+    @apply mx-auto w-full max-w-app min-h-full bg-ink relative overflow-hidden;
+  }
+  .card {
+    @apply bg-surface rounded-2xl border border-surface2/60;
+  }
+  .btn-primary {
+    @apply bg-lime text-ink font-extrabold rounded-2xl py-4 text-center active:scale-[0.98] transition-transform;
+  }
+  .btn-ghost {
+    @apply bg-surface2 text-white font-semibold rounded-2xl py-4 text-center active:scale-[0.98] transition-transform;
+  }
+  .chip {
+    @apply text-xs font-semibold px-3 py-1 rounded-full;
+  }
+}
+
+/* Scrollbar discrète */
+::-webkit-scrollbar { width: 0; height: 0; }

@@ -1,0 +1,132 @@
+import { useState } from 'react'
+import { useApp } from '../context/AppContext.jsx'
+import ScreenHeader from '../components/ScreenHeader.jsx'
+import LockOverlay from '../components/LockOverlay.jsx'
+import OfferBanner from '../components/OfferBanner.jsx'
+import { INVISIBLE, CONCEPTS, RECIPES, FEED, PYRAMID } from '../data/program.js'
+
+const TABS = ['Concepts', 'Calories', 'Recettes', 'Commu']
+
+export default function Decouverte() {
+  const [tab, setTab] = useState('Concepts')
+  const { tier, setTier } = useApp()
+
+  return (
+    <div className="pb-6">
+      <ScreenHeader title="Découverte" subtitle="Apprends en suivant" />
+      <div className="px-5">
+        <div className="mb-4 flex rounded-2xl bg-surface p-1">
+          {TABS.map((t) => (
+            <button key={t} onClick={() => setTab(t)}
+              className={`flex-1 rounded-xl py-2 text-xs font-bold transition ${tab === t ? 'bg-lime text-ink' : 'text-muted'}`}>{t}</button>
+          ))}
+        </div>
+      </div>
+
+      <div className="space-y-3 px-5">
+        {tab === 'Concepts' && <Concepts />}
+        {tab === 'Calories' && <Invisible />}
+        {tab === 'Recettes' && <Recipes />}
+        {tab === 'Commu' && <Community />}
+      </div>
+
+      {tier !== 'premium' && (
+        <div className="px-5 pt-4"><OfferBanner /></div>
+      )}
+    </div>
+  )
+}
+
+function Concepts() {
+  return (
+    <>
+      <div className="card p-4">
+        <p className="mb-3 text-sm font-extrabold uppercase tracking-wide text-muted">La pyramide de la perte de poids</p>
+        <div className="space-y-1.5">
+          {[...PYRAMID].reverse().map((p) => (
+            <div key={p.n} className="flex items-center gap-3" style={{ paddingLeft: `${(p.n - 1) * 8}px` }}>
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-lime text-xs font-black text-ink">{p.n}</span>
+              <div>
+                <span className="text-sm font-bold">{p.label}</span>
+                <span className="ml-2 text-xs text-muted">{p.note}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      {CONCEPTS.map((c, i) => (
+        <div key={c.m}>
+          {i === 0 ? (
+            <ConceptCard c={c} />
+          ) : (
+            <LockOverlay label={`Débloqué au mois ${c.m}`}><ConceptCard c={c} /></LockOverlay>
+          )}
+        </div>
+      ))}
+    </>
+  )
+}
+
+function ConceptCard({ c }) {
+  return (
+    <div className="card p-4">
+      <div className="flex items-center justify-between">
+        <span className="chip bg-flame/20 text-flame">Mois {c.m}</span>
+      </div>
+      <p className="mt-2 font-extrabold">{c.title}</p>
+      <p className="mt-1 text-sm text-muted">{c.text}</p>
+    </div>
+  )
+}
+
+function Invisible() {
+  return (
+    <>
+      <p className="text-sm text-muted">Même plaisir, deux fois moins de calories. Le secret : les calories invisibles.</p>
+      {INVISIBLE.map((it) => (
+        <div key={it.before} className="card flex items-center gap-3 p-4">
+          <div className="flex-1">
+            <p className="text-sm text-muted line-through">{it.before}</p>
+            <p className="font-bold text-lime">→ {it.after}</p>
+          </div>
+          <span className="chip bg-lime text-ink">-{it.save} kcal</span>
+        </div>
+      ))}
+    </>
+  )
+}
+
+function Recipes() {
+  return (
+    <div className="grid grid-cols-2 gap-3">
+      {RECIPES.map((r) => {
+        const card = (
+          <div className="card h-full p-4">
+            <span className="chip bg-surface2 text-muted">{r.tag}</span>
+            <p className="mt-2 font-bold leading-tight">{r.name}</p>
+            <p className="mt-1 text-xs text-lime">{r.kcal} kcal</p>
+          </div>
+        )
+        return <div key={r.name}>{r.locked ? <LockOverlay label="Recette bonus">{card}</LockOverlay> : card}</div>
+      })}
+    </div>
+  )
+}
+
+function Community() {
+  return (
+    <>
+      <p className="text-sm text-muted">Tu n’es pas seul. Le feed de ceux qui suivent, comme toi.</p>
+      {FEED.map((f, i) => (
+        <div key={i} className="card p-4">
+          <div className="flex items-center justify-between">
+            <p className="font-bold">{f.who}</p>
+            <span className="text-xs text-muted">{f.when}</span>
+          </div>
+          <p className="mt-1 text-sm">{f.text}</p>
+          <div className="mt-2 flex items-center gap-1 text-xs text-lime">🔥 {f.cheers}</div>
+        </div>
+      ))}
+    </>
+  )
+}
