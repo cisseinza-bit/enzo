@@ -3,12 +3,12 @@ import { useApp } from '../context/AppContext.jsx'
 import { useReward } from '../components/Reward.jsx'
 import ScreenHeader from '../components/ScreenHeader.jsx'
 import ProgressRing from '../components/ProgressRing.jsx'
-import { ROPE, WEEK } from '../data/program.js'
+import { ROPE } from '../data/program.js'
 
 export default function Sport() {
-  const { weekNumber, toggleTask, isTaskDone } = useApp()
+  const { weekNumber, toggleTask, isTaskDone, program } = useApp()
   const fire = useReward()
-  const plan = ROPE[weekNumber] || ROPE[1]
+  const plan = program.rope || ROPE[weekNumber] || ROPE[1]
 
   const [phase, setPhase] = useState('idle')   // idle | work | rest | done
   const [setIndex, setSetIndex] = useState(0)
@@ -98,7 +98,7 @@ export default function Sport() {
         {/* Routine de la semaine */}
         <h3 className="mb-2 mt-8 text-sm font-extrabold uppercase tracking-wide text-muted">Routine de la semaine</h3>
         <div className="card divide-y divide-surface2/60">
-          {WEEK.days.map((d) => (
+          {program.days.map((d) => (
             <div key={d.day} className="flex items-center justify-between p-3.5">
               <span className="text-sm font-semibold">{d.day}</span>
               <span className="text-xs text-muted">{d.sport}</span>

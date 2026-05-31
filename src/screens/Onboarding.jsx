@@ -1,31 +1,44 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useApp } from '../context/AppContext.jsx'
 import { PROFILES, BUDGETS, GOALS, DISCLAIMER } from '../data/program.js'
 
-const TOTAL = 6
+const TOTAL = 7
 
 export default function Onboarding() {
   const navigate = useNavigate()
   const { completeOnboarding } = useApp()
   const [step, setStep] = useState(0)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
   const [form, setForm] = useState({
     firstName: '', goal: 'perte', foodProfile: 'europeen',
     budget: 'equilibre', startWeight: '', height: '',
+    email: '', password: '',
   })
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
   const next = () => (step < TOTAL - 1 ? setStep(step + 1) : finish())
   const back = () => (step > 0 ? setStep(step - 1) : navigate('/splash'))
 
-  const finish = () => {
-    completeOnboarding({
-      ...form,
-      startWeight: form.startWeight ? Number(form.startWeight) : null,
-      height: form.height ? Number(form.height) : null,
-    })
-    navigate('/generation')
+  const finish = async () => {
+    setBusy(true); setError('')
+    try {
+      const res = await completeOnboarding({
+        ...form,
+        startWeight: form.startWeight ? Number(form.startWeight) : null,
+        height: form.height ? Number(form.height) : null,
+      })
+      if (!res.ok) { setError(res.error || 'Une erreur est survenue.'); setBusy(false); return }
+      navigate('/generation')
+    } catch (err) {
+      setError(err.message || 'Inscription impossible.')
+      setBusy(false)
+    }
   }
+
+  const emailOk = !form.email || /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email)
+  const accountOk = (!form.email && !form.password) || (emailOk && form.password.length >= 8)
 
   const canNext = {
     0: form.firstName.trim().length > 0,
@@ -33,7 +46,8 @@ export default function Onboarding() {
     2: !!form.foodProfile,
     3: !!form.budget,
     4: !!form.startWeight && !!form.height,
-    5: true,
+    5: accountOk,
+    6: true,
   }[step]
 
   return (
@@ -95,6 +109,25 @@ export default function Onboarding() {
         )}
 
         {step === 5 && (
+          <Step title="Crée ton compte" sub="Pour retrouver ta progression sur tous tes appareils.">
+            <div className="space-y-3">
+              <TextField type="email" label="Email" value={form.email} onChange={(v) => set('email', v)} placeholder="toi@email.fr" />
+              <TextField type="password" label="Mot de passe (min 8 caractères)" value={form.password} onChange={(v) => set('password', v)} placeholder="••••••••" />
+              {!emailOk && <p className="text-xs text-flame">Email invalide.</p>}
+              {form.email && form.password && form.password.length < 8 && (
+                <p className="text-xs text-flame">Mot de passe trop court.</p>
+              )}
+              <p className="rounded-xl bg-surface2/50 px-4 py-3 text-xs leading-snug text-muted">
+                Tu peux laisser vide pour tester en mode démo (données gardées sur cet appareil uniquement).
+              </p>
+              <p className="text-center text-xs text-muted">
+                Déjà inscrit ? <Link to="/connexion" className="font-bold text-lime">Se connecter</Link>
+              </p>
+            </div>
+          </Step>
+        )}
+
+        {step === 6 && (
           <Step title="Tout est prêt." sub="Voici ce qu’on a retenu :">
             <ul className="space-y-2 text-sm">
               <Recap label="Prénom" value={form.firstName} />
@@ -102,14 +135,16 @@ export default function Onboarding() {
               <Recap label="Profil" value={PROFILES.find((p) => p.id === form.foodProfile)?.label} />
               <Recap label="Budget" value={BUDGETS.find((b) => b.id === form.budget)?.label} />
               <Recap label="Départ" value={`${form.startWeight || '—'} kg · ${form.height || '—'} cm`} />
+              <Recap label="Compte" value={form.email || 'Mode démo'} />
             </ul>
+            {error && <p className="mt-4 rounded-xl bg-flame/15 px-4 py-3 text-sm text-flame">{error}</p>}
             <p className="mt-5 text-[10px] leading-snug text-muted">{DISCLAIMER}</p>
           </Step>
         )}
       </div>
 
-      <button onClick={next} disabled={!canNext} className={`btn-primary w-full ${!canNext ? 'opacity-40' : ''}`}>
-        {step === TOTAL - 1 ? 'Générer mon programme' : 'Continuer'}
+      <button onClick={next} disabled={!canNext || busy} className={`btn-primary w-full ${!canNext || busy ? 'opacity-40' : ''}`}>
+        {busy ? 'Création…' : step === TOTAL - 1 ? 'Générer mon programme' : 'Continuer'}
       </button>
     </div>
   )
@@ -154,6 +189,19 @@ function NumField({ label, value, onChange, placeholder }) {
       <input
         type="number" inputMode="decimal" value={value} onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
+        className="w-full rounded-2xl border border-surface2 bg-surface px-5 py-4 text-lg font-semibold outline-none focus:border-lime"
+      />
+    </label>
+  )
+}
+
+function TextField({ label, value, onChange, placeholder, type = 'text' }) {
+  return (
+    <label className="block">
+      <span className="mb-1 block text-xs font-semibold text-muted">{label}</span>
+      <input
+        type={type} value={value} onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder} autoCapitalize="none" autoCorrect="off"
         className="w-full rounded-2xl border border-surface2 bg-surface px-5 py-4 text-lg font-semibold outline-none focus:border-lime"
       />
     </label>

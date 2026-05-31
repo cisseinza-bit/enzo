@@ -1,15 +1,16 @@
 import { useState } from 'react'
 import { useApp } from '../context/AppContext.jsx'
 import ScreenHeader from '../components/ScreenHeader.jsx'
-import { WEEK, SHOPPING, BATCH } from '../data/program.js'
+import { SHOPPING, BATCH } from '../data/program.js'
 
 const TABS = ['Semaine', 'Courses', 'Batch']
 
 export default function Programme() {
   const [tab, setTab] = useState('Semaine')
+  const { program } = useApp()
   return (
     <div className="pb-6">
-      <ScreenHeader subtitle={WEEK.phase} title="Ton programme" />
+      <ScreenHeader subtitle={program.phase} title="Ton programme" />
       <div className="px-5">
         <div className="mb-4 flex rounded-2xl bg-surface p-1">
           {TABS.map((t) => (
@@ -29,10 +30,11 @@ export default function Programme() {
 
 function WeekView() {
   const [open, setOpen] = useState(0)
+  const { program } = useApp()
   return (
     <div className="space-y-2 px-5">
-      <p className="rounded-xl bg-surface2/50 px-4 py-3 text-xs leading-snug text-muted">{WEEK.phaseNote}</p>
-      {WEEK.days.map((d, i) => {
+      <p className="rounded-xl bg-surface2/50 px-4 py-3 text-xs leading-snug text-muted">{program.phaseNote}</p>
+      {program.days.map((d, i) => {
         const total = d.meals.reduce((a, m) => a + m.kcal, 0)
         const isOpen = open === i
         return (

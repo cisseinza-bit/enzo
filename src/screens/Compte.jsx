@@ -3,7 +3,7 @@ import ScreenHeader from '../components/ScreenHeader.jsx'
 import { PROFILES, BUDGETS, GOALS } from '../data/program.js'
 
 export default function Compte() {
-  const { profile, tier, setTier, reset, streak } = useApp()
+  const { profile, tier, setTier, reset, streak, online, user, logout } = useApp()
 
   const foodLabel = PROFILES.find((p) => p.id === profile.foodProfile)?.label
   const budgetLabel = BUDGETS.find((b) => b.id === profile.budget)?.label
@@ -23,6 +23,11 @@ export default function Compte() {
             <div>
               <p className="text-lg font-extrabold">{profile.firstName || 'Toi'}</p>
               <p className="text-xs text-muted">🔥 {streak} jours de série</p>
+              <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wide">
+                {online
+                  ? <span className="text-lime">● Connecté · {user.email}</span>
+                  : <span className="text-muted">○ Mode démo (local)</span>}
+              </p>
             </div>
           </div>
           <div className="mt-4 grid grid-cols-3 gap-2 text-center">
@@ -67,7 +72,15 @@ export default function Compte() {
           </p>
         </div>
 
-        {/* Réinitialiser */}
+        {/* Déconnexion / Réinitialiser */}
+        {online && (
+          <button
+            onClick={logout}
+            className="w-full rounded-2xl border border-surface2 py-4 text-center text-sm font-semibold text-white active:scale-[0.98] transition"
+          >
+            Se déconnecter
+          </button>
+        )}
         <button
           onClick={() => { if (confirm('Réinitialiser toutes tes données locales ?')) reset() }}
           className="w-full rounded-2xl border border-surface2 py-4 text-center text-sm font-semibold text-muted active:scale-[0.98] transition"

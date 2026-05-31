@@ -22,7 +22,7 @@ export default function Splash() {
         <button onClick={() => navigate('/onboarding')} className="btn-primary w-full">
           Commencer
         </button>
-        <button onClick={() => navigate('/onboarding')} className="btn-ghost w-full">
+        <button onClick={() => navigate('/connexion')} className="btn-ghost w-full">
           J’ai déjà un compte
         </button>
         <p className="px-2 pt-2 text-[10px] leading-snug text-muted">{DISCLAIMER}</p>

@@ -5,6 +5,7 @@ import BottomNav from './components/BottomNav.jsx'
 import FloatingUnlock from './components/FloatingUnlock.jsx'
 
 import Splash from './screens/Splash.jsx'
+import Connexion from './screens/Connexion.jsx'
 import Onboarding from './screens/Onboarding.jsx'
 import Generating from './screens/Generating.jsx'
 import Home from './screens/Home.jsx'
@@ -15,16 +16,29 @@ import Decouverte from './screens/Decouverte.jsx'
 import Compte from './screens/Compte.jsx'
 
 export default function App() {
-  const { onboarded } = useApp()
+  const { onboarded, booting } = useApp()
   const location = useLocation()
 
+  // Reprise de session en cours : court écran de chargement.
+  if (booting) {
+    return (
+      <div className="app-shell flex items-center justify-center">
+        <div className="animate-flame text-5xl">🔥</div>
+      </div>
+    )
+  }
+
   // Tant que l'onboarding n'est pas fait, on enferme l'utilisateur dans le tunnel d'entrée.
-  const inEntryFlow = ['/splash', '/onboarding', '/generation'].includes(location.pathname)
+  const inEntryFlow = ['/splash', '/connexion', '/onboarding', '/generation'].includes(location.pathname)
 
   if (!onboarded && !inEntryFlow) {
     return (
       <div className="app-shell">
-        <Splash />
+        <Routes location={location}>
+          <Route path="/connexion" element={<Connexion />} />
+          <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="*" element={<Splash />} />
+        </Routes>
       </div>
     )
   }
@@ -34,6 +48,7 @@ export default function App() {
       <div className="app-shell flex flex-col">
         <Routes location={location}>
           <Route path="/splash" element={<Splash />} />
+          <Route path="/connexion" element={<Connexion />} />
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/generation" element={<Generating />} />
           <Route path="/" element={<WithNav key={location.pathname}><Home /></WithNav>} />

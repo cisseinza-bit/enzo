@@ -4,7 +4,6 @@ import { useReward } from '../components/Reward.jsx'
 import ScreenHeader from '../components/ScreenHeader.jsx'
 import ProgressRing from '../components/ProgressRing.jsx'
 import OfferBanner from '../components/OfferBanner.jsx'
-import { WEEK } from '../data/program.js'
 
 const DAILY_TASKS = [
   { key: 'rope', label: 'Corde à sauter', emoji: '🪢' },
@@ -15,11 +14,11 @@ const DAILY_TASKS = [
 ]
 
 export default function Home() {
-  const { profile, streak, isTaskDone, toggleTask } = useApp()
+  const { profile, streak, isTaskDone, toggleTask, program } = useApp()
   const fire = useReward()
 
   const dayIndex = (new Date().getDay() + 6) % 7 // lundi = 0
-  const todayPlan = WEEK.days[dayIndex]
+  const todayPlan = program.days[dayIndex]
 
   const done = DAILY_TASKS.filter((t) => isTaskDone(t.key)).length
   const total = DAILY_TASKS.length
@@ -33,7 +32,7 @@ export default function Home() {
   return (
     <div className="space-y-5 pb-6">
       <ScreenHeader
-        subtitle={`Semaine ${WEEK.number} · ${WEEK.phase}`}
+        subtitle={`Semaine ${program.number} · ${program.phase}`}
         title={`Salut ${profile.firstName || ''} 👋`}
         right={
           <div className="flex items-center gap-2">
