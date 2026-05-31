@@ -2,6 +2,7 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useApp } from './context/AppContext.jsx'
 import { RewardProvider } from './components/Reward.jsx'
 import BottomNav from './components/BottomNav.jsx'
+import FloatingUnlock from './components/FloatingUnlock.jsx'
 
 import Splash from './screens/Splash.jsx'
 import Onboarding from './screens/Onboarding.jsx'
@@ -11,6 +12,7 @@ import Programme from './screens/Programme.jsx'
 import Sport from './screens/Sport.jsx'
 import Suivi from './screens/Suivi.jsx'
 import Decouverte from './screens/Decouverte.jsx'
+import Compte from './screens/Compte.jsx'
 
 export default function App() {
   const { onboarded } = useApp()
@@ -30,15 +32,16 @@ export default function App() {
   return (
     <RewardProvider>
       <div className="app-shell flex flex-col">
-        <Routes>
+        <Routes location={location}>
           <Route path="/splash" element={<Splash />} />
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/generation" element={<Generating />} />
-          <Route path="/" element={<WithNav><Home /></WithNav>} />
-          <Route path="/programme" element={<WithNav><Programme /></WithNav>} />
-          <Route path="/sport" element={<WithNav><Sport /></WithNav>} />
-          <Route path="/suivi" element={<WithNav><Suivi /></WithNav>} />
-          <Route path="/decouverte" element={<WithNav><Decouverte /></WithNav>} />
+          <Route path="/" element={<WithNav key={location.pathname}><Home /></WithNav>} />
+          <Route path="/programme" element={<WithNav key={location.pathname}><Programme /></WithNav>} />
+          <Route path="/sport" element={<WithNav key={location.pathname}><Sport /></WithNav>} />
+          <Route path="/suivi" element={<WithNav key={location.pathname}><Suivi /></WithNav>} />
+          <Route path="/decouverte" element={<WithNav key={location.pathname}><Decouverte /></WithNav>} />
+          <Route path="/compte" element={<WithNav key={location.pathname}><Compte /></WithNav>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
@@ -49,7 +52,11 @@ export default function App() {
 function WithNav({ children }) {
   return (
     <>
-      <main className="flex-1 overflow-y-auto pb-2">{children}</main>
+      <main className="flex-1 overflow-y-auto pb-2">
+        {/* La clé sur la route relance l'animation d'entrée à chaque changement d'écran */}
+        <div className="animate-fade-up">{children}</div>
+      </main>
+      <FloatingUnlock />
       <BottomNav />
     </>
   )

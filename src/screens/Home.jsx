@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { useApp } from '../context/AppContext.jsx'
 import { useReward } from '../components/Reward.jsx'
 import ScreenHeader from '../components/ScreenHeader.jsx'
@@ -35,9 +36,18 @@ export default function Home() {
         subtitle={`Semaine ${WEEK.number} · ${WEEK.phase}`}
         title={`Salut ${profile.firstName || ''} 👋`}
         right={
-          <div className="flex items-center gap-1 rounded-full bg-surface px-3 py-1.5">
-            <span className="animate-flame text-lg">🔥</span>
-            <span className="font-extrabold">{streak}</span>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 rounded-full bg-surface px-3 py-1.5">
+              <span className="animate-flame text-lg">🔥</span>
+              <span className="font-extrabold">{streak}</span>
+            </div>
+            <Link
+              to="/compte"
+              aria-label="Mon compte"
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-lime text-sm font-black text-ink active:scale-95 transition"
+            >
+              {(profile.firstName || '?').slice(0, 1).toUpperCase()}
+            </Link>
           </div>
         }
       />
