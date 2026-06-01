@@ -6,7 +6,9 @@ import LockOverlay from '../components/LockOverlay.jsx'
 import OfferBanner from '../components/OfferBanner.jsx'
 import Tabs from '../components/ui/Tabs.jsx'
 import Icon from '../components/ui/Icon.jsx'
+import Photo from '../components/ui/Photo.jsx'
 import { INVISIBLE, CONCEPTS, RECIPES, FEED, PYRAMID } from '../data/program.js'
+import { photoForMeal } from '../data/images.js'
 
 const TABS = ['Concepts', 'Calories', 'Recettes', 'Commu']
 
@@ -102,10 +104,13 @@ function Recipes() {
     <div className="grid grid-cols-2 gap-3">
       {RECIPES.map((r) => {
         const card = (
-          <div className="card h-full p-4">
-            <span className="chip bg-ink-700 text-muted">{r.tag}</span>
-            <p className="mt-2 font-display font-bold leading-tight">{r.name}</p>
-            <p className="tnum mt-1 text-xs font-semibold text-lime">{r.kcal} kcal</p>
+          <div className="card h-full overflow-hidden">
+            <Photo src={photoForMeal(r.name).local} alt={r.name} className="h-24 w-full" />
+            <div className="p-4">
+              <span className="chip bg-ink-700 text-muted">{r.tag}</span>
+              <p className="mt-2 font-display font-bold leading-tight">{r.name}</p>
+              <p className="tnum mt-1 text-xs font-semibold text-lime">{r.kcal} kcal</p>
+            </div>
           </div>
         )
         return <div key={r.name}>{r.locked ? <LockOverlay label="Recette bonus">{card}</LockOverlay> : card}</div>

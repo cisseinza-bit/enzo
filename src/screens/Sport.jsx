@@ -6,7 +6,9 @@ import ScreenHeader from '../components/ScreenHeader.jsx'
 import ProgressRing from '../components/ProgressRing.jsx'
 import Button from '../components/ui/Button.jsx'
 import Icon from '../components/ui/Icon.jsx'
+import Photo from '../components/ui/Photo.jsx'
 import { ROPE } from '../data/program.js'
+import { IMAGES } from '../data/images.js'
 
 export default function Sport() {
   const { weekNumber, toggleTask, isTaskDone, program } = useApp()
@@ -68,6 +70,13 @@ export default function Sport() {
       <ScreenHeader subtitle={`Semaine ${weekNumber}`} title="Corde à sauter" />
 
       <div className="px-5">
+        {phase === 'idle' && (
+          <Photo src={IMAGES.heroRope.local} alt={IMAGES.heroRope.alt} overlay className="mb-4 h-40 w-full rounded-3xl">
+            <div className="flex h-full flex-col justify-end p-5">
+              <p className="font-display text-2xl font-extrabold leading-tight text-white">Tous les jours.<br />Sans exception.</p>
+            </div>
+          </Photo>
+        )}
         <p className="mb-6 flex items-center justify-center gap-2 rounded-2xl border border-ink-500/40 bg-ink-700/50 px-4 py-3 text-center text-sm font-semibold">
           <Icon name="timer" size={15} className="text-lime" strokeWidth={2.4} />
           {plan.label} · repos {plan.rest}s

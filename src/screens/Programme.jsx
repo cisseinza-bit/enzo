@@ -5,7 +5,9 @@ import ScreenHeader from '../components/ScreenHeader.jsx'
 import Tabs from '../components/ui/Tabs.jsx'
 import Icon from '../components/ui/Icon.jsx'
 import Counter from '../components/ui/Counter.jsx'
+import Photo from '../components/ui/Photo.jsx'
 import { SHOPPING, BATCH } from '../data/program.js'
+import { photoForMeal } from '../data/images.js'
 
 const TABS = ['Semaine', 'Courses', 'Batch']
 
@@ -58,10 +60,11 @@ function WeekView() {
                   className="divide-y divide-ink-500/40 border-t border-ink-500/40"
                 >
                   {d.meals.map((m) => (
-                    <div key={m.slot} className="flex items-center justify-between px-4 py-3">
-                      <div>
+                    <div key={m.slot} className="flex items-center gap-3 px-4 py-2.5">
+                      <Photo src={photoForMeal(m.name).local} alt={m.name} className="h-11 w-11 shrink-0 rounded-lg" />
+                      <div className="min-w-0 flex-1">
                         <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">{m.slot}</p>
-                        <p className="text-sm font-semibold">{m.name}</p>
+                        <p className="truncate text-sm font-semibold">{m.name}</p>
                       </div>
                       <span className="tnum text-xs font-semibold text-lime">{m.kcal}</span>
                     </div>
