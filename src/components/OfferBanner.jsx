@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext.jsx'
 import { OFFERS } from '../data/program.js'
 import Icon from './ui/Icon.jsx'
@@ -17,7 +18,8 @@ function useCountdown(seconds = 6 * 3600 + 42 * 60) {
 
 // Bannière offre limitée (modèle Higgsfield) — affichée aux non-abonnés.
 export default function OfferBanner() {
-  const { tier, weekNumber, setTier } = useApp()
+  const { tier, weekNumber } = useApp()
+  const navigate = useNavigate()
   const time = useCountdown()
   if (tier === 'premium') return null
   const offer = OFFERS[(weekNumber - 1) % OFFERS.length]
@@ -34,7 +36,7 @@ export default function OfferBanner() {
           <p className="text-xs font-medium text-muted">{offer.sub}</p>
         </div>
         <button
-          onClick={() => setTier('premium')}
+          onClick={() => navigate('/abonnement')}
           className="flex shrink-0 items-center gap-1.5 rounded-2xl bg-flame px-4 py-2.5 text-sm font-bold text-ink-900 shadow-glow-flame active:scale-95 transition"
         >
           <Icon name="unlock" size={15} strokeWidth={2.5} />

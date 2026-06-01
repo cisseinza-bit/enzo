@@ -2,17 +2,18 @@ import { Router } from 'express'
 import express from 'express'
 import { query } from '../db/pool.js'
 import { config } from '../config.js'
+import { getStripe } from '../services/stripe.js'
 
 // Webhook Stripe — monté AVANT le parser JSON global car il a besoin du body brut.
 export const webhookRouter = Router()
 
+const toDate = (sec) => (sec ? new Date(sec * 1000).toISOString() : null)
+
 webhookRouter.post('/stripe', express.raw({ type: 'application/json' }), async (req, res) => {
-  if (!config.stripe.enabled || !config.stripe.webhookSecret) {
+  const stripe = getStripe()
+  if (!stripe || !config.stripe.webhookSecret) {
     return res.status(503).json({ error: 'Webhook Stripe non configuré' })
   }
-
-  const Stripe = (await import('stripe')).default
-  const stripe = new Stripe(config.stripe.secretKey)
 
   let event
   try {
@@ -28,7 +29,7 @@ webhookRouter.post('/stripe', express.raw({ type: 'application/json' }), async (
     switch (event.type) {
       case 'checkout.session.completed': {
         const s = event.data.object
-        const userId = Number(s.client_reference_id)
+        const userId = Number(s.client_reference_id || s.metadata?.userId)
         if (userId) {
           await query("UPDATE users SET tier = 'premium' WHERE id = $1", [userId])
           await query(
@@ -41,6 +42,21 @@ webhookRouter.post('/stripe', express.raw({ type: 'application/json' }), async (
             [userId, s.customer, s.subscription, s.metadata?.plan || 'premium']
           )
         }
+        break
+      }
+      case 'customer.subscription.updated': {
+        const sub = event.data.object
+        const active = ['active', 'trialing'].includes(sub.status)
+        await query(
+          `UPDATE subscriptions SET status = $2, current_period_end = $3, updated_at = now()
+           WHERE stripe_sub_id = $1`,
+          [sub.id, sub.status, toDate(sub.current_period_end)]
+        )
+        await query(
+          `UPDATE users SET tier = $2
+           WHERE id = (SELECT user_id FROM subscriptions WHERE stripe_sub_id = $1)`,
+          [sub.id, active ? 'premium' : 'locked']
+        )
         break
       }
       case 'customer.subscription.deleted': {

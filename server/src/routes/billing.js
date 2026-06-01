@@ -3,6 +3,7 @@ import { query } from '../db/pool.js'
 import { requireAuth } from '../middleware/auth.js'
 import { asyncHandler, httpError } from '../middleware/error.js'
 import { config } from '../config.js'
+import { getStripe } from '../services/stripe.js'
 
 export const billingRouter = Router()
 
@@ -20,31 +21,65 @@ billingRouter.get('/plans', (req, res) => {
 
 billingRouter.use(requireAuth)
 
+// GET /api/billing/status — état de l'abonnement de l'utilisateur courant.
+billingRouter.get('/status', asyncHandler(async (req, res) => {
+  const { rows } = await query(
+    `SELECT u.tier, s.status, s.plan, s.current_period_end
+     FROM users u LEFT JOIN subscriptions s ON s.user_id = u.id
+     WHERE u.id = $1`,
+    [req.userId]
+  )
+  res.json(rows[0] || { tier: 'locked', status: 'inactive' })
+}))
+
 // POST /api/billing/checkout  { plan }
 // Crée une session Stripe Checkout si configuré ; sinon renvoie un mode désactivé.
 billingRouter.post('/checkout', asyncHandler(async (req, res) => {
   const { plan } = req.body || {}
   if (!PLANS.some((p) => p.id === plan)) throw httpError(400, 'Plan inconnu')
 
-  if (!config.stripe.enabled) {
+  const stripe = getStripe()
+  if (!stripe) {
     return res.status(503).json({
       error: 'Paiement non configuré',
       hint: 'Renseigne STRIPE_SECRET_KEY et les STRIPE_PRICE_* pour activer le checkout.',
     })
   }
 
-  // Intégration Stripe (chargée dynamiquement pour ne pas exiger la dépendance hors prod).
-  const Stripe = (await import('stripe')).default
-  const stripe = new Stripe(config.stripe.secretKey)
   const price = config.stripe.prices[plan]
   if (!price) throw httpError(400, `Price Stripe manquant pour le plan ${plan}`)
+
+  // Email du client pour préremplir le checkout + retrouver le compte au webhook.
+  const { rows } = await query('SELECT email, stripe_customer_id FROM users u LEFT JOIN subscriptions s ON s.user_id = u.id WHERE u.id = $1', [req.userId])
+  const user = rows[0] || {}
 
   const session = await stripe.checkout.sessions.create({
     mode: 'subscription',
     line_items: [{ price, quantity: 1 }],
     client_reference_id: String(req.userId),
+    customer: user.stripe_customer_id || undefined,
+    customer_email: user.stripe_customer_id ? undefined : user.email,
+    metadata: { userId: String(req.userId), plan },
+    subscription_data: { metadata: { userId: String(req.userId), plan } },
     success_url: `${config.corsOrigin}/?checkout=success`,
     cancel_url: `${config.corsOrigin}/?checkout=cancel`,
+    allow_promotion_codes: true,
+  })
+  res.json({ url: session.url })
+}))
+
+// POST /api/billing/portal — ouvre le portail client Stripe (gérer/annuler l'abo).
+billingRouter.post('/portal', asyncHandler(async (req, res) => {
+  const stripe = getStripe()
+  if (!stripe) return res.status(503).json({ error: 'Paiement non configuré' })
+
+  const { rows } = await query('SELECT stripe_customer_id FROM subscriptions WHERE user_id = $1', [req.userId])
+  const customer = rows[0]?.stripe_customer_id
+  if (!customer) throw httpError(400, 'Aucun abonnement actif')
+
+  const session = await stripe.billingPortal.sessions.create({
+    customer,
+    return_url: `${config.corsOrigin}/compte`,
   })
   res.json({ url: session.url })
 }))

@@ -49,6 +49,8 @@ export const api = {
 
   // Billing
   plans: () => request('/billing/plans', { auth: false }),
+  billingStatus: () => request('/billing/status'),
   checkout: (plan) => request('/billing/checkout', { method: 'POST', body: { plan } }),
+  portal: () => request('/billing/portal', { method: 'POST' }),
   devUnlock: () => request('/billing/dev-unlock', { method: 'POST' }),
 }

@@ -135,6 +135,11 @@ export function AppProvider({ children }) {
       await loadUserData()
     },
 
+    // Recharge l'utilisateur depuis l'API (ex. retour de paiement Stripe).
+    async refresh() {
+      if (getToken()) await loadUserData()
+    },
+
     logout() {
       setToken(null)
       setAuthed(false); setOnline(false); setDemo(false)

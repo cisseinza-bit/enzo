@@ -1,4 +1,5 @@
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import { useApp } from './context/AppContext.jsx'
 import { RewardProvider } from './components/Reward.jsx'
@@ -16,10 +17,21 @@ import Sport from './screens/Sport.jsx'
 import Suivi from './screens/Suivi.jsx'
 import Decouverte from './screens/Decouverte.jsx'
 import Compte from './screens/Compte.jsx'
+import Paywall from './screens/Paywall.jsx'
 
 export default function App() {
-  const { onboarded, booting } = useApp()
+  const { onboarded, booting, refresh } = useApp()
   const location = useLocation()
+  const navigate = useNavigate()
+
+  // Retour de Stripe Checkout : on rafraîchit le tier et on nettoie l'URL.
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    if (params.get('checkout') === 'success') {
+      refresh?.()
+      navigate(location.pathname, { replace: true })
+    }
+  }, [location.search, location.pathname, refresh, navigate])
 
   // Reprise de session en cours : court écran de chargement.
   if (booting) {
@@ -33,7 +45,7 @@ export default function App() {
     )
   }
 
-  const inEntryFlow = ['/splash', '/connexion', '/onboarding', '/generation'].includes(location.pathname)
+  const inEntryFlow = ['/splash', '/connexion', '/onboarding', '/generation', '/abonnement'].includes(location.pathname)
 
   if (!onboarded && !inEntryFlow) {
     return (
@@ -56,6 +68,7 @@ export default function App() {
             <Route path="/connexion" element={<Connexion />} />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/generation" element={<Generating />} />
+            <Route path="/abonnement" element={<Paywall />} />
             <Route path="/" element={<WithNav><Home /></WithNav>} />
             <Route path="/programme" element={<WithNav><Programme /></WithNav>} />
             <Route path="/sport" element={<WithNav><Sport /></WithNav>} />
