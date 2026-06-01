@@ -12,7 +12,9 @@ export const config = {
   anthropic: {
     apiKey: process.env.ANTHROPIC_API_KEY || '',
     baseUrl: process.env.ANTHROPIC_BASE_URL || 'https://api.anthropic.com',
-    model: process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-20250514',
+    // claude-sonnet-4-20250514 (du cahier des charges) est retiré ;
+    // le Sonnet courant est claude-sonnet-4-6. Surchargeable via ANTHROPIC_MODEL.
+    model: process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6',
     get enabled() { return !!this.apiKey },
   },
 

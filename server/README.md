@@ -72,12 +72,24 @@ createdb coach   # ou via psql : CREATE DATABASE coach OWNER coach;
 ## Génération de programme
 
 `src/services/programGenerator.js` :
-1. clé Anthropic présente → appel `/v1/messages`, réponse JSON parsée ;
-2. sinon (ou échec) → générateur **déterministe** basé sur les banques de
+1. clé Anthropic présente → appel via le **SDK officiel** (`@anthropic-ai/sdk`,
+   `messages.parse()`) avec :
+   - **sorties structurées** (`output_config.format` + JSON Schema) → réponse
+     garantie valide, sans parsing de texte ;
+   - **prompt caching** sur le system prompt stable (indépendant du profil) →
+     coût réduit sur les nombreuses générations hebdomadaires ;
+   - le profil culturel (maghrébin / subsaharien / européen / mixte), l'objectif,
+     le budget et la phase passent dans le message utilisateur (non caché).
+2. sinon (ou en cas d'échec API) → repli **déterministe** sur les banques de
    repas par profil culturel (`programData.js`), rotation stable par semaine/jour.
 
+Modèle par défaut : `claude-sonnet-4-6` (surchargeable via `ANTHROPIC_MODEL`).
 Les programmes sont mis en cache en base (`programs.data` JSONB) par
 `(user_id, week_number)`.
+
+> Testé en local : avec une clé valide, le SDK appelle l'API et renvoie un
+> programme structuré ; sans clé (ou clé invalide), repli déterministe propre
+> en ~200 ms, sans interruption de service.
 
 ## Sécurité
 
