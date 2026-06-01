@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useApp } from '../context/AppContext.jsx'
 import { useReward } from '../components/Reward.jsx'
@@ -8,9 +9,11 @@ import Icon from '../components/ui/Icon.jsx'
 import Button from '../components/ui/Button.jsx'
 
 export default function Suivi() {
-  const { weighIns, addWeighIn } = useApp()
+  const { weighIns, addWeighIn, measurements } = useApp()
+  const navigate = useNavigate()
   const fire = useReward()
   const [val, setVal] = useState('')
+  const lastBilan = measurements[measurements.length - 1]
 
   const data = weighIns
   const first = data[0]?.weight
@@ -75,8 +78,11 @@ export default function Suivi() {
             <span className="chip bg-ink-700 text-muted">1er lundi</span>
           </div>
           <p className="mt-1.5 text-sm text-muted">Mensurations (taille, hanches, cuisses, bras) + photos face/profil/dos. On compare M vs M-1.</p>
-          <Button variant="ghost" size="md" className="mt-4 w-full gap-2">
-            <Icon name="ruler" size={16} strokeWidth={2.2} /> Démarrer mon bilan
+          {lastBilan && (
+            <p className="mt-2 text-xs font-semibold text-lime">Dernier bilan : {new Date(lastBilan.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}</p>
+          )}
+          <Button variant="ghost" size="md" onClick={() => navigate('/bilan')} className="mt-4 w-full gap-2">
+            <Icon name="ruler" size={16} strokeWidth={2.2} /> {lastBilan ? 'Nouveau bilan' : 'Démarrer mon bilan'}
           </Button>
         </div>
       </div>

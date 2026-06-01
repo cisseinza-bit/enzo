@@ -39,6 +39,7 @@ export function AppProvider({ children }) {
   const [program, setProgram] = useState(WEEK)   // forme identique au mock
   const [weekNumber] = useState(1)
   const [weighIns, setWeighIns] = useState([])
+  const [measurements, setMeasurements] = useState([])
   const [doneTasks, setDoneTasks] = useState({}) // { 'YYYY-MM-DD:key': bool }
   const [local, setLocal] = useState(loadLocal)
 
@@ -53,13 +54,15 @@ export function AppProvider({ children }) {
       firstName: me.first_name, goal: me.goal, foodProfile: me.food_profile,
       budget: me.budget, startWeight: me.start_weight, height: me.height,
     })
-    const [prog, wi, tasks] = await Promise.all([
+    const [prog, wi, tasks, meas] = await Promise.all([
       api.program(weekNumber).catch(() => null),
       api.weighIns().catch(() => []),
       api.tasks(today()).catch(() => []),
+      api.measurements().catch(() => []),
     ])
     if (prog?.data) setProgram(prog.data)
     setWeighIns(wi.map((w) => ({ date: w.date.slice(0, 10), weight: Number(w.weight) })))
+    setMeasurements(meas.map((m) => ({ ...m, date: m.date.slice(0, 10) })))
     const map = {}
     for (const t of tasks) map[`${t.day.slice(0, 10)}:${t.task_key}`] = t.done
     setDoneTasks(map)
@@ -91,7 +94,7 @@ export function AppProvider({ children }) {
   const value = useMemo(() => ({
     booting, online, authed, onboarded, demo,
     today: today(),
-    profile, user, program, weekNumber, weighIns,
+    profile, user, program, weekNumber, weighIns, measurements,
     streak: local.streak ?? 0,
     tier: user.tier,
     shoppingChecked: local.shoppingChecked || {},
@@ -143,7 +146,7 @@ export function AppProvider({ children }) {
     logout() {
       setToken(null)
       setAuthed(false); setOnline(false); setDemo(false)
-      setWeighIns([]); setDoneTasks({}); setProgram(WEEK)
+      setWeighIns([]); setMeasurements([]); setDoneTasks({}); setProgram(WEEK)
       setUser({ firstName: '', email: '', tier: 'premium' })
     },
 
@@ -182,16 +185,28 @@ export function AppProvider({ children }) {
       if (online) api.addWeighIn(w).catch(() => {})
     },
 
+    // --- Mensurations mensuelles (bilan) ---
+    async addMeasurement(payload) {
+      const d = today()
+      const entry = { date: d, ...payload }
+      setMeasurements((list) => {
+        const without = list.filter((x) => x.date !== d)
+        return [...without, entry].sort((a, b) => a.date.localeCompare(b.date))
+      })
+      if (online) api.addMeasurement(payload).catch(() => {})
+      return entry
+    },
+
     reset() {
       localStorage.removeItem(LOCAL_KEY)
       setToken(null)
       setLocal({ shoppingChecked: {}, streak: 3 })
       setAuthed(false); setOnline(false); setDemo(false)
-      setWeighIns([]); setDoneTasks({}); setProgram(WEEK)
+      setWeighIns([]); setMeasurements([]); setDoneTasks({}); setProgram(WEEK)
       setUser({ firstName: '', email: '', tier: 'premium' })
       setProfile({ firstName: '', goal: 'perte', foodProfile: 'europeen', budget: 'equilibre', startWeight: null, height: null })
     },
-  }), [booting, online, authed, demo, profile, user, program, weekNumber, weighIns, doneTasks, local, loadUserData])
+  }), [booting, online, authed, demo, profile, user, program, weekNumber, weighIns, measurements, doneTasks, local, loadUserData])
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>
 }

@@ -18,6 +18,7 @@ import Suivi from './screens/Suivi.jsx'
 import Decouverte from './screens/Decouverte.jsx'
 import Compte from './screens/Compte.jsx'
 import Paywall from './screens/Paywall.jsx'
+import Bilan from './screens/Bilan.jsx'
 
 export default function App() {
   const { onboarded, booting, refresh } = useApp()
@@ -73,6 +74,7 @@ export default function App() {
             <Route path="/programme" element={<WithNav><Programme /></WithNav>} />
             <Route path="/sport" element={<WithNav><Sport /></WithNav>} />
             <Route path="/suivi" element={<WithNav><Suivi /></WithNav>} />
+            <Route path="/bilan" element={<WithNav><Bilan /></WithNav>} />
             <Route path="/decouverte" element={<WithNav><Decouverte /></WithNav>} />
             <Route path="/compte" element={<WithNav><Compte /></WithNav>} />
             <Route path="*" element={<Navigate to="/" replace />} />
